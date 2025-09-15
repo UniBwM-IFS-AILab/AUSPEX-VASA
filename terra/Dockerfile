@@ -26,7 +26,11 @@ RUN apt install -y python3-pip \
     iputils-ping \
     git \
     sudo \
-    nano
+    nano \
+    wget \
+    iproute2 \
+    libzmq3-dev \
+    pkg-config
 
 RUN apt install -y ros-${ROS_VERSION}-desktop \
     ros-${ROS_VERSION}-geographic-msgs \
@@ -40,8 +44,6 @@ RUN apt install -y nlohmann-json3-dev \
 
 RUN pip3 install --upgrade pip
 
-RUN pip3 install msgpack-rpc-python
-RUN pip3 install "airsim==1.8.1"
 RUN pip3 install pandas
 RUN pip3 install alns
 RUN pip3 install scikit-learn
@@ -74,27 +76,22 @@ RUN pip3 install "tornado==6.4.2"
 RUN pip3 install nltk
 
 WORKDIR /root
-RUN git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git
-WORKDIR /root/Micro-XRCE-DDS-Agent
-RUN git checkout -f ros2
-COPY copy_files/uxrce_agent/CMakeLists.txt .
-RUN mkdir build
-WORKDIR /root/Micro-XRCE-DDS-Agent/build
-RUN cmake ..
-RUN make
-RUN make install
-RUN ldconfig /usr/local/lib/
+RUN wget https://github.com/mavlink/MAVSDK/releases/download/v3.5.0/libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
+RUN dpkg -i libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
+RUN ldconfig
+RUN rm libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
 
 WORKDIR /root
 RUN git clone https://github.com/PX4/PX4-Autopilot.git
 WORKDIR /root/PX4-Autopilot
 RUN git checkout -f v1.15.4
 RUN git submodule update --init --recursive
-COPY copy_files/px4/dds_topics.yaml ./src/modules/uxrce_dds_client/
 RUN make px4_sitl_default
 
 WORKDIR /root
-RUN git clone https://github.com/microsoft/AirSim
+
+RUN git clone https://github.com/microsoft/AirSim.git
+#RUN git clone https://github.com/CodexLabsLLC/Colosseum.git AirSim
 WORKDIR /root/AirSim
 # overwrite some AirSim files (see: https://github.com/microsoft/AirSim/issues/4892)
 COPY copy_files/airsim/setup.sh .
@@ -104,6 +101,8 @@ COPY copy_files/airsim/ros2/src/airsim_ros_pkgs/CMakeLists.txt ./ros2/src/airsim
 COPY copy_files/airsim/Unity/build.sh ./Unity/
 RUN chmod +x setup.sh
 RUN chmod +x build.sh
+# BlocksV2
+RUN chmod +x Unreal/Environments/Blocks/clean.sh 
 RUN ./setup.sh
 RUN ./build.sh
 

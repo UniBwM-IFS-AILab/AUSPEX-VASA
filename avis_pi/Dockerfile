@@ -24,7 +24,9 @@ RUN apt install -y python3-pip \
     tzdata \
     net-tools \
     iputils-ping \
-    git
+    git \
+    wget \
+    iproute2
 
 RUN apt install -y ros-${ROS_VERSION}-desktop \
     ros-${ROS_VERSION}-geographic-msgs \
@@ -42,19 +44,17 @@ RUN apt install -y libgnutls28-dev openssl libtiff-dev pybind11-dev
 RUN apt install -y qtbase5-dev libqt5core5a libqt5widgets5
 
 RUN apt install -y python3-yaml python3-ply
-RUN apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
+RUN apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev \
+    gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+
+RUN pip install mavsdk
 
 WORKDIR /root
-RUN git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git
-WORKDIR /root/Micro-XRCE-DDS-Agent
-RUN git checkout -f ros2
-COPY copy_files/uxrce_agent/CMakeLists.txt .
-RUN mkdir build
-WORKDIR /root/Micro-XRCE-DDS-Agent/build
-RUN cmake ..
-RUN make
-RUN make install
-RUN ldconfig /usr/local/lib/
+RUN apt -y install wget
+RUN wget https://github.com/mavlink/MAVSDK/releases/download/v3.5.0/libmavsdk-dev_3.5.0_debian12_arm64.deb
+RUN dpkg -i libmavsdk-dev_3.5.0_debian12_arm64.deb
+RUN ldconfig
+RUN rm libmavsdk-dev_3.5.0_debian12_arm64.deb
 
 WORKDIR /root
 RUN pip install meson
@@ -67,7 +67,6 @@ RUN ninja -C build install
 RUN ldconfig
 
 WORKDIR /root
-COPY copy_files/uxrce_agent/dds_local_setup.xml .
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> /root/.bashrc
 RUN echo 'source /root/MENTHON-WS/install/setup.bash' >> /root/.bashrc

@@ -18,23 +18,14 @@ To cite **AUSPEX-VASA**, please use the following reference:
 ```
 buildvasa
 ```
+This reads the OBC_TYPE environment variable and builds the Docker container accordingly.
 
 ## 2. Run container:
-For ground station / simulation:
 ```
-run_terra_vasa
-```
-For drones there are different containers depending on the hardware:
-* Raspberry Pi:
-```
-run_avis_pi_vasa
-```
-* Nvidia Jetson Xavier:
-```
-run_avis_jetson_vasa
+runvasa
 ```
 
-## 3. Open second bash on running container:
+## 3. Attach bash to running container:
 ```
 vasabash
 ```
