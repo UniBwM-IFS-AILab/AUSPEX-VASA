@@ -12,7 +12,6 @@ if [ "$OBC_TYPE" == "DESKTOP" ]; then
     --mount type=bind,source=/home/$USER/AUSPEX,target=/root/AUSPEX \
     --mount type=bind,source=/home/$USER/auspex_params,target=/root/auspex_params \
     --network host \
-    --gpus all \
     --rm -it auspex_vasa
     #--mount type=bind,source=/home/$USER/MENTHON-WS,target=/root/MENTHON-WS \
     #--mount type=bind,source=/home/$USER/auspex-lituus,target=/root/auspex-lituus \
