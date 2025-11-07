@@ -30,7 +30,7 @@ RUN apt install -y python3-pip \
 RUN apt install -y ros-${ROS_VERSION}-desktop \
     ros-${ROS_VERSION}-geographic-msgs \
     ros-${ROS_VERSION}-tf-transformations \
-    ros-${ROS_VERSION}-rosbridge-suite
+    ros-${ROS_VERSION}-rosbridge-suite 
 
 RUN apt install -y nlohmann-json3-dev \
     python3-colcon-common-extensions \
@@ -42,7 +42,14 @@ RUN apt install -y libboost-dev
 RUN apt install -y libgnutls28-dev openssl libtiff-dev pybind11-dev
 RUN apt install -y qtbase5-dev libqt5core5a libqt5widgets5
 RUN apt install -y python3-yaml python3-ply
-RUN apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
+RUN apt install -y libglib2.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    libgstreamer-plugins-good1.0-dev \
+    libgstreamer1.0-dev \
+    gir1.2-gst-rtsp-server-1.0 \
+    libgstrtspserver-1.0-dev
+    
 RUN apt install -y gstreamer1.0-plugins-bad \
   gstreamer1.0-plugins-ugly \
   gstreamer1.0-libav \
@@ -69,7 +76,6 @@ RUN ninja -C build install
 WORKDIR /root
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> /root/.bashrc
-RUN echo 'source /root/MENTHON-WS/install/setup.bash' >> /root/.bashrc
 RUN echo 'source /root/AUSPEX/utils/auspex_aliases.sh' >> /root/.bashrc
 RUN echo 'source /root/AUSPEX/utils/auspex_exports.sh' >> /root/.bashrc
 

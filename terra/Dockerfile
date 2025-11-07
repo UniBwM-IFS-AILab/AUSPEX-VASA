@@ -35,12 +35,21 @@ RUN apt install -y python3-pip \
 RUN apt install -y ros-${ROS_VERSION}-desktop \
     ros-${ROS_VERSION}-geographic-msgs \
     ros-${ROS_VERSION}-tf-transformations \
-    ros-${ROS_VERSION}-rosbridge-suite
+    ros-${ROS_VERSION}-rosbridge-suite 
 
 RUN apt install -y nlohmann-json3-dev \
     python3-colcon-common-extensions \
     libunwind-dev libstdc++-12-dev \
     jq
+
+RUN apt install -y libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    libgstreamer-plugins-good1.0-dev \
+    gir1.2-gst-rtsp-server-1.0 \
+    libgstrtspserver-1.0-dev \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav
 
 RUN pip3 install --upgrade pip
 
@@ -74,6 +83,12 @@ RUN pip3 install valkey
 RUN pip3 install shapely
 RUN pip3 install "tornado==6.4.2"
 RUN pip3 install nltk
+RUN pip3 install ortools
+RUN pip3 install pyproj
+
+COPY copy_files/ibm_cplex copy_files/ibm_cplex
+RUN if [ -d "copy_files/ibm_cplex" ]; then python3 copy_files/ibm_cplex/python/setup.py install; fi
+
 
 WORKDIR /root
 RUN wget https://github.com/mavlink/MAVSDK/releases/download/v3.5.0/libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
@@ -128,7 +143,6 @@ COPY copy_files/px4/sitl_multiple_run.sh /root/scripts
 RUN chmod +x /root/scripts/sitl_multiple_run.sh
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> /root/.bashrc
-RUN echo 'source /root/MENTHON-WS/install/setup.bash' >> /root/.bashrc
 RUN echo 'source /root/AUSPEX/utils/auspex_aliases.sh' >> /root/.bashrc
 RUN echo 'source /root/AUSPEX/utils/auspex_exports.sh' >> /root/.bashrc
 
