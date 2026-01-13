@@ -87,7 +87,7 @@ RUN pip3 install ortools
 RUN pip3 install pyproj
 
 COPY copy_files/ibm_cplex copy_files/ibm_cplex
-RUN if [ -d "copy_files/ibm_cplex" ]; then python3 copy_files/ibm_cplex/python/setup.py install; fi
+RUN if [ -f "copy_files/ibm_cplex/python/setup.py" ]; then python3 copy_files/ibm_cplex/python/setup.py install; fi
 
 
 WORKDIR /root
