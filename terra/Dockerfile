@@ -29,7 +29,6 @@ RUN apt install -y python3-pip \
     nano \
     wget \
     iproute2 \
-    libzmq3-dev \
     pkg-config
 
 RUN apt install -y ros-${ROS_VERSION}-desktop \
@@ -56,11 +55,12 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pandas
 RUN pip3 install alns
 RUN pip3 install scikit-learn
-RUN pip3 install google-generativeai
+RUN pip3 install google-genai
 RUN pip3 install anthropic
 RUN pip3 install openai
 RUN pip3 install "transformers==4.46.3"
 RUN pip3 install unified-planning[engines]
+RUN pip3 install up-esb
 
 RUN pip3 install ultralytics --ignore-installed sympy
 RUN pip3 install webcolors
@@ -81,20 +81,17 @@ RUN pip3 install geopy
 RUN pip3 install jsonschema
 RUN pip3 install valkey
 RUN pip3 install shapely
-RUN pip3 install "tornado==6.4.2"
+#RUN pip3 install "tornado==6.4.2"
 RUN pip3 install nltk
 RUN pip3 install ortools
 RUN pip3 install pyproj
+RUN pip3 install "tornado==4.5.3"
+RUN pip3 install "msgpack-rpc-python==0.4.1"
+RUN pip3 install --no-build-isolation airsim
+RUN pip3 install zmq
 
 COPY copy_files/ibm_cplex copy_files/ibm_cplex
 RUN if [ -f "copy_files/ibm_cplex/python/setup.py" ]; then python3 copy_files/ibm_cplex/python/setup.py install; fi
-
-
-WORKDIR /root
-RUN wget https://github.com/mavlink/MAVSDK/releases/download/v3.5.0/libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
-RUN dpkg -i libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
-RUN ldconfig
-RUN rm libmavsdk-dev_3.5.0_ubuntu22.04_amd64.deb
 
 WORKDIR /root
 RUN git clone https://github.com/PX4/PX4-Autopilot.git
@@ -103,23 +100,11 @@ RUN git checkout -f v1.15.4
 RUN git submodule update --init --recursive
 RUN make px4_sitl_default
 
+# Fix Planner for UP
 WORKDIR /root
-
-RUN git clone https://github.com/microsoft/AirSim.git
-#RUN git clone https://github.com/CodexLabsLLC/Colosseum.git AirSim
-WORKDIR /root/AirSim
-# overwrite some AirSim files (see: https://github.com/microsoft/AirSim/issues/4892)
-COPY copy_files/airsim/setup.sh .
-COPY copy_files/airsim/build.sh .
-COPY copy_files/airsim/cmake/cmake-modules/CommonSetup.cmake ./cmake/cmake-modules/
-COPY copy_files/airsim/ros2/src/airsim_ros_pkgs/CMakeLists.txt ./ros2/src/airsim_ros_pkgs/
-COPY copy_files/airsim/Unity/build.sh ./Unity/
-RUN chmod +x setup.sh
-RUN chmod +x build.sh
-# BlocksV2
-RUN chmod +x Unreal/Environments/Blocks/clean.sh 
-RUN ./setup.sh
-RUN ./build.sh
+RUN chmod +x /usr/local/lib/python3.10/dist-packages/up_lpg/lpg
+RUN ls -l /usr/local/lib/python3.10/dist-packages/up_lpg/lpg  # should show -rwxr-xr-x
+COPY copy_files/up_planner/lpg_planner.py /usr/local/lib/python3.10/dist-packages/up_lpg/
 
 WORKDIR /root
 RUN mkdir valkey
@@ -141,6 +126,9 @@ WORKDIR /root
 RUN mkdir scripts
 COPY copy_files/px4/sitl_multiple_run.sh /root/scripts
 RUN chmod +x /root/scripts/sitl_multiple_run.sh
+
+RUN pip3 install mavsdk
+RUN pip3 install pymap3d
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> /root/.bashrc
 RUN echo 'source /root/AUSPEX/utils/auspex_aliases.sh' >> /root/.bashrc

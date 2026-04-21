@@ -1,15 +1,23 @@
+#!/usr/bin/env bash
+
 VASA_DIR="$AUSPEX_HOST_DIR/AUSPEX-VASA"
 
-alias vasabash='docker exec -it $(docker ps -q --filter ancestor=auspex_vasa) /bin/bash'
+alias vasa_attach='docker exec -it vas_primum /bin/bash'
 
-alias invasa='docker exec -it $(docker ps -q --filter ancestor=auspex_vasa) /bin/bash -cil'
+alias vasa_cmd='docker exec -it vas_primum /bin/bash -cil'
 
-alias iv=invasa
+alias vasa_kill='docker kill vas_primum'
 
-alias killvasa='docker kill $(docker ps -q --filter ancestor=auspex_vasa)'
+alias vasa_build='$VASA_DIR/scripts/vasa_build.sh'
 
-alias buildvasa='$VASA_DIR/scripts/build_vasa.sh'
+alias vasa_rebuild='$VASA_DIR/scripts/vasa_rebuild.sh'
 
-alias rebuildvasa='$VASA_DIR/scripts/rebuild_vasa.sh'
+alias vasa_run='$VASA_DIR/scripts/vasa_run.sh'
 
-alias runvasa='$VASA_DIR/scripts/run_vasa.sh'
+vasa_shell() {
+  if [ -n "$(docker ps -q -f name=^/vas_primum$)" ]; then
+    vasa_attach
+  else
+    vasa_run
+  fi
+}

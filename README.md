@@ -17,18 +17,18 @@ To cite **AUSPEX-VASA**, please use the following reference:
 ```
 ## 1. Build container:
 ```
-buildvasa
+vasa_build
 ```
 This reads the OBC_TYPE environment variable and builds the Docker container accordingly.
 
 ## 2. Run container:
 ```
-runvasa
+vasa_run
 ```
 
 ## 3. Attach bash to running container:
 ```
-vasabash
+vasa_bash
 ```
 
 ## (optional)
