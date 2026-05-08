@@ -1,7 +1,7 @@
 FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV ROS_VERSION="humble"
+ENV ROS_DISTRO="humble"
 ENV TZ=Europe/Berlin
 
 SHELL ["/bin/bash", "-c"]
@@ -27,10 +27,10 @@ RUN apt install -y python3-pip \
     git \
     iproute2
 
-RUN apt install -y ros-${ROS_VERSION}-desktop \
-    ros-${ROS_VERSION}-geographic-msgs \
-    ros-${ROS_VERSION}-tf-transformations \
-    ros-${ROS_VERSION}-rosbridge-suite 
+RUN apt install -y ros-${ROS_DISTRO}-desktop \
+    ros-${ROS_DISTRO}-geographic-msgs \
+    ros-${ROS_DISTRO}-tf-transformations \
+    ros-${ROS_DISTRO}-rosbridge-suite 
 
 RUN apt install -y nlohmann-json3-dev \
     python3-colcon-common-extensions \

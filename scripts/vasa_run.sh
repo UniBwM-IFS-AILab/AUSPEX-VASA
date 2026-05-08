@@ -24,12 +24,18 @@ camera_args=(
   --device /dev/media1
   --group-add video
   --mount "type=bind,source=/run/udev,target=/run/udev,readonly"
+)
+
+pi_camera_args=(
   --mount "type=bind,source=/dev/dma_heap,target=/dev/dma_heap"
 )
 
 if [[ "$OBC_TYPE" != "DESKTOP" ]]; then
-  if [[ -n "$CAM_TYPE" ]]; then
+  if [[ -n "$CAM_TYPE" && "$CAM_TYPE" != "NONE" ]]; then
     docker_cmd+=("${camera_args[@]}")
+    if [[ "$OBC_TYPE" == "PI" ]]; then
+      docker_cmd+=("${pi_camera_args[@]}")
+    fi
   fi
 fi
 

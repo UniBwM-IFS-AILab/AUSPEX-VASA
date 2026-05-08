@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PYTHONPATH=/usr/local/lib/python3/dist-packages
-ENV ROS_VERSION="humble"
+ENV ROS_DISTRO="humble"
 ENV TZ=Europe/Berlin
 
 SHELL ["/bin/bash", "-c"]
@@ -57,10 +57,10 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o 
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 RUN apt update -y
 
-RUN apt install -y ros-${ROS_VERSION}-desktop \
-    ros-${ROS_VERSION}-geographic-msgs \
-    ros-${ROS_VERSION}-tf-transformations \
-    ros-${ROS_VERSION}-rosbridge-suite 
+RUN apt install -y ros-${ROS_DISTRO}-desktop \
+    ros-${ROS_DISTRO}-geographic-msgs \
+    ros-${ROS_DISTRO}-tf-transformations \
+    ros-${ROS_DISTRO}-rosbridge-suite 
 
 RUN apt install -y python3-colcon-common-extensions \
     libunwind-dev libstdc++-12-dev

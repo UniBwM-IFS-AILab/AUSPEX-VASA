@@ -1,8 +1,9 @@
-FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
+FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV ROS_DISTRO="humble"
+ENV ROS_DISTRO_NAME="jazzy"
 ENV TZ=Europe/Berlin
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 SHELL ["/bin/bash", "-c"]
 
@@ -15,14 +16,10 @@ ENV LANG=en_US.UTF-8
 
 RUN apt install -y software-properties-common
 RUN add-apt-repository universe
-
-RUN apt install -y software-properties-common
-RUN add-apt-repository universe
 RUN apt update && apt install curl -y
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 RUN apt update -y
-
 
 RUN apt install -y python3-pip \
     tzdata \
@@ -54,8 +51,6 @@ RUN apt install -y libgstreamer1.0-dev \
     gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav
 
-RUN pip3 install --upgrade pip
-
 RUN pip3 install pandas
 RUN pip3 install alns
 RUN pip3 install scikit-learn
@@ -69,7 +64,7 @@ RUN pip3 install up-esb
 RUN pip3 install ultralytics --ignore-installed sympy
 RUN pip3 install webcolors
 RUN pip3 install "scipy==1.15.1"
-RUN pip3 install "numpy==1.24.0"
+RUN pip3 install "numpy==1.26.4"
 RUN pip3 install pyparsing
 
 RUN pip3 install requests
@@ -93,9 +88,13 @@ RUN pip3 install pyproj
 # RUN pip3 install "msgpack-rpc-python==0.4.1"
 # RUN pip3 install --no-build-isolation airsim
 RUN pip3 install zmq
+RUN pip3 install cplex docplex
 
 COPY copy_files/ibm_cplex copy_files/ibm_cplex
-RUN if [ -f "copy_files/ibm_cplex/python/setup.py" ]; then python3 copy_files/ibm_cplex/python/setup.py install; fi
+ENV CPLEX_STUDIO_DIR2212=/copy_files/ibm_cplex
+ENV CPLEX_STUDIO_BINARIES2212=/copy_files/ibm_cplex/cpoptimizer/bin/x86-64_linux
+ENV PATH=/copy_files/ibm_cplex/cpoptimizer/bin/x86-64_linux:/copy_files/ibm_cplex/cplex/bin/x86-64_linux:${PATH}
+# RUN docplex config --upgrade /copy_files/ibm_cplex
 
 WORKDIR /root
 RUN git clone https://github.com/PX4/PX4-Autopilot.git
@@ -105,10 +104,12 @@ RUN git submodule update --init --recursive
 RUN make px4_sitl_default
 
 # Fix Planner for UP
+COPY copy_files/up_planner/lpg_planner.py /tmp/lpg_planner.py
 WORKDIR /root
-RUN chmod +x /usr/local/lib/python3.10/dist-packages/up_lpg/lpg
-RUN ls -l /usr/local/lib/python3.10/dist-packages/up_lpg/lpg  # should show -rwxr-xr-x
-COPY copy_files/up_planner/lpg_planner.py /usr/local/lib/python3.10/dist-packages/up_lpg/
+RUN UP_LPG_DIR="$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["platlib"] + "/up_lpg")')" && \
+    chmod +x "$UP_LPG_DIR/lpg" && \
+    ls -l "$UP_LPG_DIR/lpg" && \
+    cp /tmp/lpg_planner.py "$UP_LPG_DIR/lpg_planner.py"
 
 WORKDIR /root
 RUN mkdir valkey
